@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <poll.h>
+#include <poll.h> /* 字符设备驱动**/
 #include <string.h>
 #include <time.h>
 
