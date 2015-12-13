@@ -69,7 +69,7 @@ static int aeApiAddEvent(aeEventLoop *eventLoop, int fd, int mask) {
     /* If the fd was already monitored for some event, we need a MOD
      * operation. Otherwise we need an ADD operation. */
     int op = eventLoop->events[fd].mask == AE_NONE ?
-            EPOLL_CTL_ADD : EPOLL_CTL_MOD;
+            EPOLL_CTL_ADD : EPOLL_CTL_MOD; /*EPOLL_CTL_ADD:注册新的fd到epfd中，EPOLL_CTL_MOD:修改已经注册的fd的监听事件*/
 
     ee.events = 0;
     mask |= eventLoop->events[fd].mask; /* Merge old events */
@@ -116,8 +116,8 @@ static int aeApiPoll(aeEventLoop *eventLoop, struct timeval *tvp) {
 
             if (e->events & EPOLLIN) mask |= AE_READABLE;
             if (e->events & EPOLLOUT) mask |= AE_WRITABLE;
-            if (e->events & EPOLLERR) mask |= AE_WRITABLE;
-            if (e->events & EPOLLHUP) mask |= AE_WRITABLE;
+            if (e->events & EPOLLERR) mask |= AE_WRITABLE;/*文件描述符产生错误**/
+            if (e->events & EPOLLHUP) mask |= AE_WRITABLE;/*文件描述符被挂断**/
             eventLoop->fired[j].fd = e->data.fd;
             eventLoop->fired[j].mask = mask;
         }
