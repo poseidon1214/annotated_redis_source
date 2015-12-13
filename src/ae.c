@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <poll.h>
+#include <poll.h> /*字符设备驱动**/
 #include <string.h>
 #include <time.h>
 
@@ -83,8 +83,8 @@ aeEventLoop *aeCreateEventLoop(int setsize) {
     eventLoop->stop = 0;
     eventLoop->maxfd = -1;
     eventLoop->beforesleep = NULL;
-    if (aeApiCreate(eventLoop) == -1) goto err;
-    /* Events with mask == AE_NONE are not set. So let's initialize the
+    if (aeApiCreate(eventLoop) == -1) goto err; /*check aeApiCreate**/
+    /* Events with mask == AE_NONE are not set. So let's initiaize the
      * vector with it. */
     for (i = 0; i < setsize; i++)
         eventLoop->events[i].mask = AE_NONE;
@@ -348,7 +348,7 @@ static int processTimeEvents(aeEventLoop *eventLoop) {
         // 获取当前时间
         aeGetTime(&now_sec, &now_ms);
 
-        // 如果当前时间等于或等于事件的执行时间，那么执行这个事件
+        // 如果当前时间大于或等于事件的执行时间，那么执行这个事件
         if (now_sec > te->when_sec ||
             (now_sec == te->when_sec && now_ms >= te->when_ms))
         {
@@ -441,7 +441,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
         // 获取最近的时间事件
         if (flags & AE_TIME_EVENTS && !(flags & AE_DONT_WAIT))
             shortest = aeSearchNearestTimer(eventLoop);
-        if (shortest) {
+        if (shortest) { /*如果存在时间时间**/
             // 如果时间事件存在的话
             // 那么根据最近可执行时间事件和现在时间的时间差来决定文件事件的阻塞时间
             long now_sec, now_ms;
@@ -462,8 +462,8 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
 
             // 时间差小于 0 ，说明事件已经可以执行了，将秒和毫秒设为 0 （不阻塞）
             if (tvp->tv_sec < 0) tvp->tv_sec = 0;
-            if (tvp->tv_usec < 0) tvp->tv_usec = 0;
-        } else {
+            if (tvp->tv_usec < 0) tvp->tv_usec = 0; /*这种情况如何出现?**/
+        } else { /*不存在时间事件**/
             
             // 执行到这一步，说明没有时间事件
             // 那么根据 AE_DONT_WAIT 是否设置来决定是否阻塞，以及阻塞的时间长度
@@ -483,7 +483,7 @@ int aeProcessEvents(aeEventLoop *eventLoop, int flags)
         }
 
         // 处理文件事件，阻塞时间由 tvp 决定
-        numevents = aeApiPoll(eventLoop, tvp);
+        numevents = aeApiPoll(eventLoop, tvp);/*调用aeApiPoll阻塞事件**/
         for (j = 0; j < numevents; j++) {
             // 从已就绪数组中获取事件
             aeFileEvent *fe = &eventLoop->events[eventLoop->fired[j].fd];
