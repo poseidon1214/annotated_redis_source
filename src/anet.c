@@ -111,7 +111,7 @@ int anetResolve(char *err, char *host, char *ipbuf)
     struct sockaddr_in sa;
 
     sa.sin_family = AF_INET;
-    if (inet_aton(host, &sa.sin_addr) == 0) {
+    if (inet_aton(host, &sa.sin_addr) == 0) { 
         struct hostent *he;
 
         he = gethostbyname(host);
@@ -168,9 +168,9 @@ static int anetTcpGenericConnect(char *err, char *addr, int port, int flags)
         if (anetNonBlock(err,s) != ANET_OK)
             return ANET_ERR;
     }
-    if (connect(s, (struct sockaddr*)&sa, sizeof(sa)) == -1) {
+    if (connect(s, (struct sockaddr*)&sa, sizeof(sa)) == -1) {/*未连接上**/
         if (errno == EINPROGRESS &&
-            flags & ANET_CONNECT_NONBLOCK)
+            flags & ANET_CONNECT_NONBLOCK) /*阻塞式*/
             return s;
 
         anetSetError(err, "connect: %s", strerror(errno));
@@ -195,7 +195,7 @@ int anetUnixGenericConnect(char *err, char *path, int flags)
     int s;
     struct sockaddr_un sa;
 
-    if ((s = anetCreateSocket(err,AF_LOCAL)) == ANET_ERR)
+    if ((s = anetCreateSocket(err,AF_LOCAL)) == ANET_ERR) /*进程通信协议**/
         return ANET_ERR;
 
     sa.sun_family = AF_LOCAL;
